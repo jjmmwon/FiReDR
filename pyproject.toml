@@ -6,14 +6,22 @@ authors = [
     {name = "jjmmwon",email = "jmw1790@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
-    "numpy (>=2.4.0,<3.0.0)",
+    "numpy (<2.4)",
     "pandas (>=2.3.3,<3.0.0)",
-    "matplotlib (>=3.10.8,<4.0.0)"
+    "matplotlib (>=3.10.8,<4.0.0)",
+    "numba (>=0.59,<0.64)",
+    "llvmlite (>=0.42)",
+    "umap-learn (>=0.5.9.post2,<0.6.0)"
 ]
 
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "ipykernel (>=7.1.0,<8.0.0)"
+]

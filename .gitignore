@@ -74,6 +74,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb
 
 # IPython
 profile_default/
@@ -101,3 +102,7 @@ venv.bak/
 # OS
 .DS_Store
 Thumbs.db
+
+
+# private folders
+prodr/__*/
