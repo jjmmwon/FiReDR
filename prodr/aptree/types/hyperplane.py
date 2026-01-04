@@ -2,7 +2,7 @@ from numbers import Number
 
 from dataclasses import dataclass
 
-from .vector import Vector
+from . import Vector
 
 
 @dataclass(frozen=True)
