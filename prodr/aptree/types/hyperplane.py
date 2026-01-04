@@ -1,8 +1,8 @@
-from numbers import Number
-
 from dataclasses import dataclass
 
-from . import Vector
+import numpy as np
+
+from .vector import Vector
 
 
 @dataclass(frozen=True)
@@ -15,4 +15,14 @@ class Hyperplane:
     """
 
     normal: Vector
-    offset: Number
+    offset: float
+
+    def evaluate(self, x: Vector) -> float:
+        """
+        Evaluate the hyperplane equation for a given point.
+        Args:
+            x (Vector): The point to evaluate.
+        Returns:
+            Number: The result of the hyperplane equation.
+        """
+        return np.dot(self.normal, x) + self.offset
