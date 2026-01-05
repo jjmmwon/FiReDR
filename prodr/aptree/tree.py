@@ -28,7 +28,7 @@ class APTree:
         self._X: Optional[np.ndarray] = None
         self._n_features: Optional[int] = None
 
-    def insert(self, X: np.ndarray) -> None:
+    def fit(self, X: np.ndarray) -> None:
         """
         Insert new data points into the tree.
         Args:
@@ -144,3 +144,31 @@ class APTree:
 
         _traverse(self._root)
         return leaves
+
+    def predict(self) -> np.ndarray:
+        """
+        Predict cluster labels for all data points in the tree.
+        Returns:
+            np.ndarray: Cluster labels for each data point.
+        """
+        if self._X is None:
+            raise ValueError("No data points in the tree.")
+
+        labels = -1 * np.ones(self._X.shape[0], dtype=int)
+        leaf_nodes = self.get_leaf_nodes()
+
+        for cluster_id, leaf in enumerate(leaf_nodes):
+            labels[leaf.data_indices] = cluster_id
+
+        return labels
+
+    def fit_predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        Fit the tree with new data points and predict their cluster labels.
+        Args:
+            X (np.ndarray): New data points to be inserted.
+        Returns:
+            np.ndarray: Cluster labels for each data point.
+        """
+        self.fit(X)
+        return self.predict()
