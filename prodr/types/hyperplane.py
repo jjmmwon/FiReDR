@@ -25,4 +25,4 @@ class Hyperplane:
         Returns:
             Number: The result of the hyperplane equation.
         """
-        return np.dot(self.normal, x) + self.offset
+        return np.dot(self.normal, x) - self.offset
