@@ -2,8 +2,13 @@ from collections import deque
 
 import numpy as np
 
-from prodr.types import Node
-from prodr.apforest.utils import generate_hyperplane, generate_normal, split_node
+from prodr.components import Node, FlatTree
+from prodr.apforest.utils import (
+    generate_hyperplane,
+    generate_normal,
+    split_node,
+    traverse_to_leaf,
+)
 
 
 class APTree:
@@ -24,6 +29,7 @@ class APTree:
             data_indices=[],
             depth=0,
         )
+        self._flat_tree: FlatTree = FlatTree(root=self._root)
         self._leaf_nodes: deque[Node] = deque([self._root])
 
         self._X: np.ndarray | None = None
@@ -35,7 +41,7 @@ class APTree:
         if self._n_features != -1:
             return
         self._n_features = X.shape[1]
-        self.normals = generate_normal(self._n_features, self.seed)
+        self.normals = generate_normal(self._n_features, self._rng).reshape(1, -1)
 
     def insert(self, batch: np.ndarray) -> None:
         """
@@ -43,17 +49,13 @@ class APTree:
         Args:
             X (np.ndarray): New data points to be inserted.
         """
-
+        self._ensure_initialized(batch)
         self._insert_batch(batch)
         self._split_nodes()
 
     def _insert_batch(self, batch: np.ndarray) -> None:
         """"""
-        self._ensure_initialized(batch)
-        if self._X is None:
-            self._X = batch
-        else:
-            self._X = np.vstack([self._X, batch])
+        self._X = batch if self._X is None else np.vstack([self._X, batch])
 
         projections = batch @ self.normals.T
         for i in range(batch.shape[0]):
@@ -100,14 +102,12 @@ class APTree:
                 self.normals[node.depth] if node.depth < self.normals.shape[0] else None
             )
             hyperplane = generate_hyperplane(
-                data=data,
-                normal_vector=normal_vector,
-                seed=self.seed + node.depth,
+                data=data, normal_vector=normal_vector, rng=self._rng
             )
             if normal_vector is None:
                 self.normals = np.vstack([self.normals, hyperplane.normal])
 
-            mask = hyperplane.evaluate(data) >= 0
+            mask = np.dot(data, hyperplane.normal) >= hyperplane.offset
             left = np.array(node.data_indices)[mask]
             right = np.array(node.data_indices)[np.logical_not(mask)]
 
@@ -117,5 +117,19 @@ class APTree:
 
             self._leaf_nodes.append(left_node)
             self._leaf_nodes.append(right_node)
+            self._flat_tree.split_node(
+                node=node,
+                left_node=left_node,
+                right_node=right_node,
+                threshold=hyperplane.offset,
+            )
 
         self._leaf_nodes = deque(leaf_nodes)
+
+    def get_leaf_nodes(self) -> list[Node]:
+        """
+        Get the current leaf nodes of the tree.
+        Returns:
+            list[Node]: The list of current leaf nodes.
+        """
+        return list(self._leaf_nodes)
