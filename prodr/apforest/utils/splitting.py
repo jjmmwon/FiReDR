@@ -1,8 +1,7 @@
 from typing import Optional
 import numpy as np
 
-from prodr.apforest.structures import Node
-from prodr.types import Hyperplane
+from prodr.components import Hyperplane, Node
 
 
 def split_node(
@@ -38,7 +37,9 @@ def split_node(
 
 
 def generate_hyperplane(
-    data: np.ndarray, normal_vector: Optional[np.ndarray] = None, seed: int = 42
+    data: np.ndarray,
+    normal_vector: Optional[np.ndarray] = None,
+    rng: np.random.Generator | None = None,
 ) -> Hyperplane:
     """
     Generate a hyperplane that approximately bisects the given dataset.
@@ -49,8 +50,11 @@ def generate_hyperplane(
     Returns:
         tuple[np.ndarray, float]: A tuple containing the normal vector and offset of the hyperplane
     """
+    rng = rng if rng is not None else np.random.default_rng()
     n_features = data.shape[1]
-    normal = normal_vector or generate_normal(n_features, seed)
+    normal = (
+        normal_vector if normal_vector is not None else generate_normal(n_features, rng)
+    )
 
     projections = np.dot(data, normal)
     offset = np.median(projections)
@@ -58,7 +62,9 @@ def generate_hyperplane(
     return Hyperplane(normal=normal, offset=offset)
 
 
-def generate_normal(n_features: int, seed: int = 42) -> np.ndarray:
+def generate_normal(
+    n_features: int, rng: np.random.Generator | None = None
+) -> np.ndarray:
     """
     Generate a random normal vector for a hyperplane.
     Args:
@@ -67,6 +73,6 @@ def generate_normal(n_features: int, seed: int = 42) -> np.ndarray:
     Returns:
         np.ndarray: A random normal vector of shape (n_features,).
     """
-    rng = np.random.default_rng(seed)
+    rng = rng if rng is not None else np.random.default_rng()
     normal = rng.normal(size=n_features)
     return normal
