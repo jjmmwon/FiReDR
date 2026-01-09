@@ -3,7 +3,7 @@ from typing import Optional
 
 from dataclasses import dataclass
 
-from prodr.types import Hyperplane
+from .hyperplane import Hyperplane
 
 
 @dataclass
