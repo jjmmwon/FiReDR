@@ -2,7 +2,7 @@ import numpy as np
 
 from numba import njit, prange
 
-from prodr.components import FlatTree, Node
+from prodr.ensemble.components import FlatTree, Node
 
 
 def traverse_to_leaf(flat_tree: FlatTree, projections: np.ndarray) -> list[Node]:

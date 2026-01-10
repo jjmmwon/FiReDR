@@ -1,7 +1,7 @@
 from typing import Optional
 import numpy as np
 
-from prodr.components import Hyperplane, Node
+from prodr.ensemble.components import Hyperplane, Node
 
 
 def split_node(

@@ -2,8 +2,9 @@ from collections import deque
 
 import numpy as np
 
-from prodr.components import Node, FlatTree
-from prodr.apforest.utils import (
+from .components import Node, FlatTree
+from .types import UpdateLog, InsertionEvent, SplitEvent
+from .utils import (
     generate_hyperplane,
     generate_normal,
     split_node,
@@ -37,11 +38,18 @@ class APTree:
         self._idx_counter: int = 0
         self.normals: np.ndarray = np.array([])
 
+        self.split_log: list[SplitEvent] = []
+        self.insertion_log: list[InsertionEvent] = []
+
     def _ensure_initialized(self, X: np.ndarray) -> None:
         if self._n_features != -1:
             return
         self._n_features = X.shape[1]
         self.normals = generate_normal(self._n_features, self._rng).reshape(1, -1)
+
+    def _clear_logs(self) -> None:
+        self.split_log.clear()
+        self.insertion_log.clear()
 
     def insert(self, batch: np.ndarray) -> None:
         """
@@ -49,6 +57,7 @@ class APTree:
         Args:
             X (np.ndarray): New data points to be inserted.
         """
+        self._clear_logs()
         self._ensure_initialized(batch)
         self._insert_batch(batch)
         self._split_nodes()
@@ -61,6 +70,9 @@ class APTree:
         for i in range(batch.shape[0]):
             leaf_node = self._traverse_to_leaf(projections[i])
             leaf_node.data_indices.append(self._idx_counter + i)
+            self.insertion_log.append(
+                InsertionEvent(data_index=self._idx_counter + i, node=leaf_node)
+            )
         self._idx_counter += batch.shape[0]
 
     def _traverse_to_leaf(self, projection: np.ndarray) -> Node:
@@ -123,6 +135,11 @@ class APTree:
                 right_node=right_node,
                 threshold=hyperplane.offset,
             )
+            self.split_log.append(
+                SplitEvent(
+                    parent_node=node, left_child=left_node, right_child=right_node
+                )
+            )
 
         self._leaf_nodes = deque(leaf_nodes)
 
@@ -133,3 +150,17 @@ class APTree:
             list[Node]: The list of current leaf nodes.
         """
         return list(self._leaf_nodes)
+
+    def get_update_log(
+        self,
+    ) -> UpdateLog:
+        """
+        Get the log of node splits that have occurred.
+        Returns:
+            list[tuple[int, Node]]: Log of insertions (data index, leaf node).
+            list[tuple[Node, Node, Node]]: Log of splits (parent node, left child, right child).
+        """
+        return UpdateLog(
+            insertion_log=self.insertion_log,
+            split_log=self.split_log,
+        )

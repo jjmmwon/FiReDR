@@ -3,7 +3,7 @@ import scipy.sparse as sp
 from scipy.sparse.csgraph import connected_components
 
 
-def split_micro_clusters(
+def extract_micro_clusters(
     collision_matrix: sp.csr_matrix, threshold: int
 ) -> tuple[list[np.ndarray], list[sp.csr_matrix]]:
     """
@@ -17,8 +17,9 @@ def split_micro_clusters(
 
                             as belonging to the same micro-cluster.
     Returns:
-        list[list[int]]: A list of micro-clusters, each represented as a list of
-                            data point indices.
+        tuple[list[np.ndarray], list[sp.csr_matrix]]: A tuple containing:
+            - A list of numpy arrays, each representing the indices of data points in a micro-cluster.
+            - A list of sparse matrices, each representing the collision matrix of a micro-cluster.
     """
 
     # Create a binary adjacency matrix based on the threshold
@@ -34,11 +35,7 @@ def split_micro_clusters(
     for idx, label in enumerate(labels):
         label_to_indices[label].append(idx)
 
-    micro_clusters_instances = [
-        np.array(indices) for indices in label_to_indices.values()
-    ]
-    micro_clusters = [
-        collision_matrix[indices][:, indices] for indices in micro_clusters_instances
-    ]
+    members = [np.array(indices) for indices in label_to_indices.values()]
+    micro_clusters = [collision_matrix[indices][:, indices] for indices in members]
 
-    return micro_clusters_instances, micro_clusters
+    return members, micro_clusters

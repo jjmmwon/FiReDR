@@ -1,7 +1,8 @@
 import numpy as np
 import scipy.sparse as sp
 
-from prodr.components import Node
+from prodr.ensemble.components import Node
+from prodr.ensemble.types import InsertionEvent
 
 
 def generate_collision_matrix_single(
@@ -52,3 +53,13 @@ def generate_collision_matrix(
         C_total += C_tree
 
     return C_total
+
+
+def update_newly_inserted_points(
+    insertion_logs: list[list[InsertionEvent]],
+    idx_range: tuple[int, int],
+):
+    if len(insertion_logs[0]) != (idx_range[1] - idx_range[0]):
+        raise ValueError(
+            "Length of insertion_logs must match the number of newly inserted points."
+        )

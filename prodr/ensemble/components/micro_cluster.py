@@ -15,6 +15,5 @@ class MicroCluster:
         weight (int): The number of data points in the micro-cluster.
     """
 
-    center: np.ndarray
-    data_indices: list[int]
-    inner_structure: sp.lil_matrix
+    data_indices: np.ndarray
+    inner_structure: sp.csr_matrix
