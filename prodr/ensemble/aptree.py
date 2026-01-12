@@ -8,7 +8,7 @@ from .utils import (
     generate_hyperplane,
     generate_normal,
     split_node,
-    traverse_to_leaf,
+    # traverse_to_leaf,
 )
 
 
