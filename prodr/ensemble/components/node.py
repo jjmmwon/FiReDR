@@ -12,7 +12,7 @@ class Node:
     Represents a node in an adaptive partitioning tree.
     """
 
-    data_indices: list[int]
+    indices: list[int]
     depth: int
     is_leaf: bool = True
 

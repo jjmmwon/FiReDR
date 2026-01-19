@@ -3,3 +3,4 @@ from .node import Node
 from .hyperplane import Hyperplane
 from .flat_tree import FlatTree
 from .micro_cluster import MicroCluster
+from .data import ProgressiveDataStorage
