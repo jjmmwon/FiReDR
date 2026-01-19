@@ -16,13 +16,13 @@ def split_node(
         hyperplane (Hyperplane): The hyperplane used for splitting.
     """
     left_child = Node(
-        data_indices=left,
+        indices=left,
         depth=node.depth + 1,
         is_leaf=True,
         parent=node,
     )
     right_child = Node(
-        data_indices=right,
+        indices=right,
         depth=node.depth + 1,
         is_leaf=True,
         parent=node,
